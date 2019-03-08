@@ -1,9 +1,11 @@
 package db
 
 import (
+	"fmt"
+
 	"../config"
-	"../util/log"
 	"../model"
+	"../util/log"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
@@ -16,12 +18,13 @@ func GormInit() (*gorm.DB, error) {
 	db, err := gorm.Open("mysql", config.MysqlDSL())
 	// Get database connection handle [*sql.DB](http://golang.org/pkg/database/sql/#DB)
 	db.DB()
-    db.AutoMigrate(
+	db.AutoMigrate(
 		&model.User{},
 		&model.Company{},
 		&model.Team{},
 		&model.Role{},
 	)
+	fmt.Println("-----Migration OK!")
 	// Then you could invoke `*sql.DB`'s functions with it
 	db.DB().Ping()
 	db.DB().SetMaxIdleConns(10)
