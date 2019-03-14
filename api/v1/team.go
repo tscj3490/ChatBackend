@@ -18,9 +18,9 @@ import (
 // @Description Teams's router group.
 func InitTeams(parentRoute *echo.Group) {
 	route := parentRoute.Group("/teams")
+
 	route.Use(middleware.JWT([]byte(config.AuthTokenKey)))
 
-	route.POST("", permission.AuthRequired(createTeam))
 	route.GET("/:id", permission.AuthRequired(readTeam))
 	route.PUT("/:id", permission.AuthRequired(updateTeam))
 	route.DELETE("/:id", permission.AuthRequired(deleteTeam))
@@ -40,20 +40,6 @@ func InitTeams(parentRoute *echo.Group) {
 // @Failure 400 {object} response.BasicResponse "err.team.create"
 // @Resource /teams
 // @Router /teams [post]
-func createTeam(c echo.Context) error {
-	team := &model.Team{}
-	if err := c.Bind(team); err != nil {
-		return response.KnownErrJSON(c, "err.team.bind", err)
-	}
-
-	// create team
-	team, err := teamService.CreateTeam(team)
-	if err != nil {
-		return response.KnownErrJSON(c, "err.team.create", err)
-	}
-
-	return response.SuccessInterface(c, team)
-}
 
 // @Title readTeam
 // @Description Read a team.

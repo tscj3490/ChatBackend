@@ -21,6 +21,15 @@ type User struct {
 	TeamName string `json:"team_name" gorm:"-"`
 }
 
+// ManagerInfo
+type ManagerInfo struct {
+	Team  *Team  `json:"team"   gorm:"-"`
+	Name  string `json:"name"`
+	Phone string `json:"phone"`
+	Email string `json:"email"`
+	Role  string `json:"role"`
+}
+
 // PublicUser struct.
 type PublicUser struct {
 	*User

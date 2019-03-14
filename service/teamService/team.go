@@ -1,6 +1,8 @@
 package teamService
 
 import (
+	"errors"
+
 	"../../db"
 	"../../model"
 )
@@ -12,6 +14,11 @@ func InitService() {
 
 // CreateTeam creates a team
 func CreateTeam(team *model.Team) (*model.Team, error) {
+	t := &model.Team{}
+	if res := db.ORM.Where("name = ?", team.Name).First(&t).RecordNotFound(); !res {
+		err := errors.New(team.Name + " is already registered")
+		return nil, err
+	}
 	// Insert Data
 	if err := db.ORM.Create(&team).Error; err != nil {
 		return nil, err
@@ -24,10 +31,10 @@ func CreateTeam(team *model.Team) (*model.Team, error) {
 func ReadTeam(id uint) (*model.Team, error) {
 	team := &model.Team{}
 	// Read Data
-	err := db.ORM.Table("teams").Select("teams.*, companies.name as company_name").
-		Joins("left join companies on companies.id = teams.company_id").
-		First(&team, "teams.id = ?", id).Error
-	// err := db.ORM.First(&team, "id = ?", id).Error
+	// err := db.ORM.Table("teams").Select("teams.*, companies.name as company_name").
+	// 	Joins("left join companies on companies.id = teams.company_id").
+	// 	First(&team, "teams.id = ?", id).Error
+	err := db.ORM.First(&team, "id = ?", id).Error
 	return team, err
 }
 
@@ -50,15 +57,12 @@ func ReadTeams(query string, offset int, count int, field string, sort int, user
 	totalCount := 0
 
 	res := db.ORM
-	res = res.Table("teams").Select("teams.*, companies.name as company_name").
-		Joins("left join companies on companies.id = teams.company_id")
+	// res = res.Table("teams").Select("teams.*, companies.name as company_name").
+	// 	Joins("left join companies on companies.id = teams.company_id")
 
-	if userID != 0 {
-		res = res.Where("user_id = ?", userID)
-	}
 	if query != "" {
 		query = "%" + query + "%"
-		res = res.Where("name LIKE ? OR address1 LIKE ? OR address2 LIKE ? OR city LIKE ? OR description LIKE ?", query, query, query, query, query)
+		res = res.Where("name LIKE ?", query)
 	}
 	// get total count of collection with initial query
 	res.Find(&teams).Count(&totalCount)

@@ -1,13 +1,12 @@
 package permission
 
 import (
+	"fmt"
 	"time"
 
-	// "../../../api/response"
 	"../../../config"
 	"../../../util/timeHelper"
 	// "../adminService"
-	// "../userService"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
@@ -30,21 +29,24 @@ func GenerateToken(id uint, role string) (string, error) {
 }
 
 // InfoFromToken returns idx from token
-func InfoFromToken(c echo.Context) (uint, string) {
+func InfoFromToken(c echo.Context) {
+	fmt.Printf("InfoFromToken=%+v\n", c.Get("user"))
 	token := c.Get("user").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
+	c.Set("user_idx", claims["idx"])
+	c.Set("user_role", claims["role"].(string))
 
-	var id uint
-	var role string
-	// retrieve object id of client
-	if claims["idx"] != nil {
-		id = uint(claims["idx"].(float64))
-	}
-	// retrieve role: admin, user
-	if claims["role"] != nil {
-		role = claims["role"].(string)
-	}
-	return id, role
+	// var id uint
+	// var role string
+	// // retrieve object id of client
+	// if claims["idx"] != nil {
+	// 	id = uint(claims["idx"].(float64))
+	// }
+	// // retrieve role: admin, user
+	// if claims["role"] != nil {
+	// 	role = claims["role"].(string)
+	// }
+	//return id, role
 }
 
 func expiredFromToken(c echo.Context) bool {
@@ -61,6 +63,7 @@ func expiredFromToken(c echo.Context) bool {
 // AuthRequired run function when user logged in.
 func AuthRequired(f func(c echo.Context) error) echo.HandlerFunc {
 	return func(c echo.Context) (err error) {
+		InfoFromToken(c)
 		// // checking expire date
 		// if expiredFromToken(c) {
 		// 	log.Error("Token is expired.")
@@ -82,7 +85,17 @@ func AuthRequired(f func(c echo.Context) error) echo.HandlerFunc {
 		// 		return response.KnownErrorJSON(c, http.StatusUnauthorized, "error.auth.fail", errors.New("Auth failed"))
 		// 	}
 		// }
+		// checking client validation
+		// {
+		// 	id, _ := InfoFromToken(c)
+		// 	var err error
+		// 	_, err = userService.ReadUser(id)
 
+		// 	if err != nil {
+		// 		log.Error("Auth failed.")
+		// 		return response.KnownErrorJSON(c, http.StatusUnauthorized, "error.auth.fail", errors.New("Auth failed"))
+		// 	}
+		// }
 		f(c)
 
 		return nil

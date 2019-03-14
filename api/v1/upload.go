@@ -13,6 +13,7 @@ import (
 	"../response"
 
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 // InitUpload inits upload file apis
@@ -20,7 +21,7 @@ import (
 // @Description Upload's router group.
 func InitUpload(parentRoute *echo.Group) {
 	route := parentRoute.Group("/uploads")
-	// route.Use(middleware.JWT([]byte(config.AuthTokenKey)))
+	route.Use(middleware.JWT([]byte(config.AuthTokenKey)))
 
 	route.POST("/image", uploadImage)
 }

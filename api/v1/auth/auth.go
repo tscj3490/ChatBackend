@@ -6,9 +6,12 @@ import (
 	"../../../model"
 	"../../../service/authService"
 	"../../../service/authService/permission"
+	"../../../service/teamService"
 	"../../response"
 
+	"../../../config"
 	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
 )
 
 // UserForm struct.
@@ -23,10 +26,22 @@ type VerifiedUser struct {
 	IsVerified bool   `json:"is_verified"`
 }
 
+// PublicManager
+type PublicManager struct {
+	Token string `json:"token"`
+	Code  string `json:"code"`
+}
+
 // Init inits authorization apis
 // @Title Auth
 // @Description Auth's router group.
 func Init(parentRoute *echo.Group) {
+	parentRoute.GET("/verifyCode", verifyCode)
+	parentRoute.GET("/sendCode", sendCode)
+	parentRoute.GET("/addMember", addMember)
+	parentRoute.GET("/checkMember", checkMember)
+	parentRoute.POST("/add/teamManager", createTeamManager)
+	parentRoute.Use(middleware.JWT([]byte(config.AuthTokenKey)))
 	// init admin
 	// initAdmin(parentRoute)
 	// init user
@@ -39,10 +54,8 @@ func Init(parentRoute *echo.Group) {
 	// initBook(parentRoute)
 
 	// parentRoute.GET("/forgotPassword", forgotPassword)
-	parentRoute.GET("/verifyCode", verifyCode)
-	// parentRoute.POST("/changePassword", changePassword)
+	parentRoute.GET("/inviteMember", permission.AuthRequired(inviteMember))
 
-	parentRoute.GET("/sendCode", sendCode)
 }
 
 func initAdmin(parentRoute *echo.Group) {
@@ -111,6 +124,40 @@ func changePassword(c echo.Context) error {
 	return response.SuccessInterface(c, chgpass)
 }
 
+// createTeamManager
+func createTeamManager(c echo.Context) error {
+	managerInfo := &model.ManagerInfo{}
+
+	if err := c.Bind(managerInfo); err != nil {
+		return response.KnownErrJSON(c, "err.managerInfo.bind", err)
+	}
+
+	// create team
+	_, err := teamService.CreateTeam(managerInfo.Team)
+	if err != nil {
+		return response.KnownErrJSON(c, "err.team.create", err)
+	}
+
+	// role := "manager"
+	// // Generate encoded token and send it as response.
+	// t, err := permission.GenerateToken(team.ID, role)
+	// if err != nil {
+	// 	return response.KnownErrJSON(c, "err.auth.token", err)
+	// }
+
+	_, err = authService.AddManager(managerInfo)
+	if err != nil {
+		return response.KnownErrJSON(c, "err.manager.add", err)
+	}
+
+	code, err := authService.SendCode(managerInfo.Phone)
+	if err != nil {
+		return response.KnownErrJSON(c, "err.phone.verify", err)
+	}
+
+	return response.SuccessInterface(c, code)
+}
+
 // @Title verifyCode
 // @Description Verify code.
 // @Accept  json
@@ -124,12 +171,11 @@ func changePassword(c echo.Context) error {
 // @Resource /verifyCode
 // @Router /verifyCode [post]
 func verifyCode(c echo.Context) error {
-	phone := c.FormValue("phone")
 	code := c.FormValue("code")
 
-	role := "tester"
+	role := "manager"
 	// check phone number with verify code
-	objid, result, err := authService.VerifyCode(phone, code)
+	objid, result, err := authService.VerifyCode(code)
 	if result != true {
 		return response.KnownErrJSON(c, "err.phone.verify", err)
 	}
@@ -153,4 +199,61 @@ func sendCode(c echo.Context) error {
 
 	// return response.SuccessJSON(c, "Server has sent verification code to you. Please confirm verification code.")
 	return response.SuccessInterface(c, code)
+}
+
+// About loged out user
+func checkMember(c echo.Context) error {
+	phone := c.FormValue("phone")
+
+	code, err := authService.CheckPhone(phone)
+	if err != nil {
+		return response.KnownErrJSON(c, "err.phone.verify", err)
+	}
+
+	// return response.SuccessJSON(c, "Server has sent verification code to you. Please confirm verification code.")
+	return response.SuccessInterface(c, code)
+}
+
+func inviteMember(c echo.Context) error {
+	phone := c.FormValue("phone")
+
+	code, err := authService.AddOnlyPhone(phone)
+	if err != nil {
+		return response.KnownErrJSON(c, "err.phone.verify", err)
+	}
+
+	// return response.SuccessJSON(c, "Server has sent verification code to you. Please confirm verification code.")
+	return response.SuccessInterface(c, code)
+}
+
+func addMember(c echo.Context) error {
+	code := c.FormValue("code")
+
+	role := "seller"
+	// check phone number with verify code
+	objid, result, err := authService.VerifyCode(code)
+	if result != true {
+		return response.KnownErrJSON(c, "err.phone.verify", err)
+	}
+
+	// Generate encoded token and send it as response.
+	t, err := permission.GenerateToken(objid, role)
+	if err != nil {
+		return response.KnownErrJSON(c, "err.auth.token", err)
+	}
+
+	return response.SuccessInterface(c, VerifiedUser{t, result})
+
+	// var err error
+	// code := c.FormValue("code")
+
+	// id := c.Get("user_idx")
+	// role := c.Get("user_role")
+	// user, err := authService.VerifyRole(id)
+	// if err != nil {
+	// 	return response.KnownErrJSON(c, "err.phone.verify", err)
+	// }
+
+	// return response.SuccessJSON(c, "Server has sent verification code to you. Please confirm verification code.")
+	// return response.SuccessInterface(c, user)
 }
