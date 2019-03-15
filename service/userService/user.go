@@ -35,8 +35,10 @@ func CreateUser(user *model.User) (*model.User, error) {
 // ReadUser reads a user
 func ReadUser(id uint) (*model.User, error) {
 	user := &model.User{}
+	res := db.ORM.Table("users").Select("users.*, teams.name as team_name").
+		Joins("left join teams on teams.id = users.team_id")
 	// Read Data
-	err := db.ORM.First(&user, "id = ?", id).Error
+	err := res.First(&user, "users.id = ?", id).Error
 	return user, err
 }
 
@@ -50,9 +52,10 @@ func UpdateUser(user *model.User) (*model.User, error) {
 
 // UpdateProfile
 func UpdateProfile(user *model.User, id uint) (*model.User, error) {
-
+	res := db.ORM.Table("users").Select("users.*, teams.name as team_name").
+		Joins("left join teams on teams.id = users.team_id")
 	// Create change info
-	err := db.ORM.Model(user).Where("id = ?", id).Updates(user).Error
+	err := res.Model(user).Where("users.id = ?", id).Updates(user).Error
 	return user, err
 }
 
@@ -67,9 +70,11 @@ func ReadUsersByTeamID(teamID uint, offset int, count int, field string, sort in
 	users := []*model.User{}
 	totalCount := 0
 
-	res := db.ORM
+	res := db.ORM.Table("users").Select("users.*, teams.name as team_name").
+		Joins("left join teams on teams.id = users.team_id")
+
 	if teamID != 0 {
-		res = res.Where("team_id = ?", teamID)
+		res = res.Where("users.team_id = ?", teamID)
 	}
 	// get total count of collection with initial query
 	res.Find(&users).Count(&totalCount)
