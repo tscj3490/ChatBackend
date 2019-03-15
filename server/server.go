@@ -43,7 +43,7 @@ func startServer(exitCh chan struct{}) {
 
 func startFileServer() {
 	println("startFileServer")
-	handler := http.FileServer(http.Dir("../upload"))
+	handler := http.FileServer(http.Dir("./upload"))
 	if err := http.ListenAndServe(":"+config.FilePort, handler); err != nil {
 		fmt.Printf("Error: %v\n", err)
 	}
