@@ -4,19 +4,20 @@ import "time"
 
 // User is a user model
 type User struct {
-	ID         uint      `json:"id" gorm:"column:id"`
-	Name       string    `json:"name"  gorm:"column:name"`
-	Email      string    `json:"email"  gorm:"column:email"`
-	Phone      string    `json:"phone"   gorm:"column:phone"`
-	Avatar     string    `json:"avatar" gorm:"column:avatar"`
-	Role       string    `json:"role" gorm:"column:role"`
-	TeamID     uint      `json:"team_id" gorm:"column:team_id"`
-	Code       string    `json:"code" gorm:"column:code"`
-	IsVerified bool      `json:"is_verified" gorm:"column:is_verified"`
-	Token      string    `json:"token" gorm:"column:token"`
-	Deleted    bool      `json:"deleted"   gorm:"column:deleted"`
-	CreatedAt  time.Time `json:"created_at"   gorm:"column:created_at"`
-	UpdatedAt  time.Time `json:"updated_at"   gorm:"column:updated_at"`
+	ID          uint      `json:"id" gorm:"column:id"`
+	Name        string    `json:"name"  gorm:"column:name"`
+	Email       string    `json:"email"  gorm:"column:email"`
+	Phone       string    `json:"phone"   gorm:"column:phone"`
+	Avatar      string    `json:"avatar" gorm:"column:avatar"`
+	Role        string    `json:"role" gorm:"column:role"`
+	TeamID      uint      `json:"team_id" gorm:"column:team_id"`
+	CompanyName string    `json:"company_name" gorm:"column:company_name"`
+	Code        string    `json:"code" gorm:"column:code"`
+	IsVerified  bool      `json:"is_verified" gorm:"column:is_verified"`
+	Token       string    `json:"token" gorm:"column:token"`
+	Deleted     bool      `json:"deleted"   gorm:"column:deleted"`
+	CreatedAt   time.Time `json:"created_at"   gorm:"column:created_at"`
+	UpdatedAt   time.Time `json:"updated_at"   gorm:"column:updated_at"`
 
 	TeamName string `json:"team_name" gorm:"-"`
 }
