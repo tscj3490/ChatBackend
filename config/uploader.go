@@ -22,7 +22,7 @@ const (
 func UploadLocalPath() string {
 	_, currentFile, _, _ := runtime.Caller(0)
 	path := filepath.Dir(currentFile)
-	path += "/../../upload/"
+	path += "/../upload/"
 
 	return path
 }
