@@ -48,10 +48,48 @@ func UpdateUser(user *model.User) (*model.User, error) {
 	return user, err
 }
 
+// UpdateProfile
+func UpdateProfile(user *model.User, id uint) (*model.User, error) {
+
+	// Create change info
+	err := db.ORM.Model(user).Where("id = ?", id).Updates(user).Error
+	return user, err
+}
+
 // DeleteUser deletes user with object id
 func DeleteUser(id uint) error {
 	err := db.ORM.Delete(&model.User{ID: id}).Error
 	return err
+}
+
+// ReadUsersByTeamID
+func ReadUsersByTeamID(teamID uint, offset int, count int, field string, sort int) ([]*model.User, int, error) {
+	users := []*model.User{}
+	totalCount := 0
+
+	res := db.ORM
+	if teamID != 0 {
+		res = res.Where("team_id = ?", teamID)
+	}
+	// get total count of collection with initial query
+	res.Find(&users).Count(&totalCount)
+
+	// add page feature
+	if offset != 0 || count != 0 {
+		res = res.Offset(offset)
+		res = res.Limit(count)
+	}
+	// add sort feature
+	if field != "" && sort != 0 {
+		if sort > 0 {
+			res = res.Order(field)
+		} else {
+			res = res.Order(field + " desc")
+		}
+	}
+	err := res.Find(&users).Error
+
+	return users, totalCount, err
 }
 
 // ReadUsers return users after retreive with params

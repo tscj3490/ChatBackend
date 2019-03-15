@@ -2,11 +2,13 @@ package auth
 
 import (
 	"errors"
+	"strconv"
 
 	"../../../model"
 	"../../../service/authService"
 	"../../../service/authService/permission"
 	"../../../service/teamService"
+	"../../../service/userService"
 	"../../response"
 
 	"../../../config"
@@ -32,6 +34,12 @@ type PublicManager struct {
 	Code  string `json:"code"`
 }
 
+// ListForm struct.
+type ListForm struct {
+	Total int         `json:"total"`
+	Items interface{} `json:"items"`
+}
+
 // Init inits authorization apis
 // @Title Auth
 // @Description Auth's router group.
@@ -55,7 +63,9 @@ func Init(parentRoute *echo.Group) {
 
 	// parentRoute.GET("/forgotPassword", forgotPassword)
 	parentRoute.GET("/inviteMember", permission.AuthRequired(inviteMember))
-
+	parentRoute.GET("/get/profile", permission.AuthRequired(getProfile))
+	parentRoute.POST("/update/profile", permission.AuthRequired(updateProfile))
+	parentRoute.GET("/get/userList", permission.AuthRequired(getUsersByTeamID))
 }
 
 func initAdmin(parentRoute *echo.Group) {
@@ -122,6 +132,58 @@ func changePassword(c echo.Context) error {
 	}
 
 	return response.SuccessInterface(c, chgpass)
+}
+
+// getProfile
+func getProfile(c echo.Context) error {
+	id := uint(c.Get("user_idx").(float64))
+	// role := c.Get("user_role")
+	var err error
+	user, err := userService.ReadUser(id)
+	if err != nil {
+		return response.KnownErrJSON(c, "User doesn't exist!", err)
+	}
+	publicUser := &model.PublicUser{User: user}
+	return response.SuccessInterface(c, publicUser)
+}
+
+// updateProfile
+func updateProfile(c echo.Context) error {
+	id := uint(c.Get("user_idx").(float64))
+	// role := c.Get("user_role")
+
+	var err error
+
+	user := &model.User{}
+	if err := c.Bind(user); err != nil {
+		return response.KnownErrJSON(c, "err.user.bind", err)
+	}
+
+	user, err = userService.UpdateProfile(user, id)
+	if err != nil {
+		return response.KnownErrJSON(c, "err.make.update", err)
+	}
+
+	user, _ = userService.ReadUser(id)
+
+	publicUser := &model.PublicUser{User: user}
+	return response.SuccessInterface(c, publicUser)
+}
+
+// getUsersByTeamID
+func getUsersByTeamID(c echo.Context) error {
+	teamID, _ := strconv.Atoi(c.FormValue("teamId"))
+	offset, _ := strconv.Atoi(c.FormValue("offset"))
+	count, _ := strconv.Atoi(c.FormValue("count"))
+	field := c.FormValue("field")
+	sort, _ := strconv.Atoi(c.FormValue("sort"))
+	// read users with params
+	users, total, err := userService.ReadUsersByTeamID(uint(teamID), offset, count, field, sort)
+	if err != nil {
+		return response.KnownErrJSON(c, "err.user.read", err)
+	}
+
+	return response.SuccessInterface(c, &ListForm{total, users})
 }
 
 // createTeamManager
