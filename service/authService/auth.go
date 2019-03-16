@@ -160,6 +160,7 @@ func AddOnlyPhone(phone string) (string, error) {
 	}
 	user.Phone = phone
 	user.Code = verifyCode
+	user.Role = "seller"
 	user.IsVerified = false
 	fmt.Println("+++", verifyCode)
 	if err := db.ORM.Create(&user).Error; err != nil {
@@ -183,7 +184,7 @@ func VerifyCode(code string) (uint, bool, *model.User, error) {
 		objid = user.ID
 		result = true
 		db.ORM.Table("users").UpdateColumn("is_verified", true)
-		db.ORM.Table("users").UpdateColumn("role", "seller")
+		// db.ORM.Table("users").UpdateColumn("role", "seller")
 	} else {
 		result = false
 	}
