@@ -148,20 +148,19 @@ func AddOnlyPhone(phone string, teamID uint) (string, error) {
 	message, err := twilio.NewMessage(client, config.ServerPhone, "+"+phone, twilio.Body("Verification code :"+verifyCode))
 
 	fmt.Println(message.Status)
-
 	user := &model.User{}
-	if res := db.ORM.Where("phone = ?", phone).First(&user).RecordNotFound(); !res {
-		db.ORM.Table("users").Where("phone = ?", phone).UpdateColumn("code", verifyCode)
-		return verifyCode, nil
-	}
 	user.Phone = phone
 	user.TeamID = teamID
-	user.Code = verifyCode
 	user.Role = "seller"
 	user.IsVerified = false
 	fmt.Println("+++", verifyCode)
 	if err := db.ORM.Create(&user).Error; err != nil {
 		return verifyCode, err
+	}
+
+	if res := db.ORM.Where("phone = ?", phone).First(&user).RecordNotFound(); !res {
+		db.ORM.Table("users").Where("phone = ?", phone).UpdateColumn("code", verifyCode)
+		return verifyCode, nil
 	}
 
 	return verifyCode, err
