@@ -2,6 +2,7 @@ package auth
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 
 	"../../../model"
@@ -265,6 +266,7 @@ func sendCode(c echo.Context) error {
 
 // About loged out user
 func checkMember(c echo.Context) error {
+	fmt.Println("*******")
 	phone := c.FormValue("phone")
 
 	code, err := authService.CheckPhone(phone)

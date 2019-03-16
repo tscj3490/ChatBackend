@@ -117,13 +117,15 @@ func SendCode(phone string) (string, error) {
 // CheckPhone
 func CheckPhone(phone string) (string, error) {
 	user := &model.User{}
+
 	// generate verify code to reset password
 	verifyCode := random.GenerateRandomDigitString(6)
-	if res := db.ORM.Where("phone = ?", phone).First(&user).RecordNotFound(); res {
+	if res := db.ORM.Table("users").Where("phone = ?", phone).First(&user).RecordNotFound(); res {
+		fmt.Println("---------+++-", user, res)
 		err := errors.New("You are an unregistered user.")
 		return "", err
 	}
-
+	fmt.Println("------------")
 	db.ORM.Table("users").Where("phone = ?", phone).UpdateColumn("code", verifyCode)
 
 	client := twilio.NewClient(config.Sid, config.Token)

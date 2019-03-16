@@ -15,7 +15,7 @@ func InitService() {
 // CreateTeam creates a team
 func CreateTeam(team *model.Team) (*model.Team, error) {
 	t := &model.Team{}
-	if res := db.ORM.Where("name = ?", team.Name).First(&t).RecordNotFound(); !res {
+	if res := db.ORM.Table("teams").Where("name = ?", team.Name).First(&t).RecordNotFound(); !res {
 		err := errors.New(team.Name + " is already registered")
 		return nil, err
 	}
