@@ -278,8 +278,8 @@ func checkMember(c echo.Context) error {
 
 func inviteMember(c echo.Context) error {
 	phone := c.FormValue("phone")
-
-	code, err := authService.AddOnlyPhone(phone)
+	teamID, _ := strconv.Atoi(c.FormValue("teamID"))
+	code, err := authService.AddOnlyPhone(phone, uint(teamID))
 	if err != nil {
 		return response.KnownErrJSON(c, "err.phone.verify", err)
 	}

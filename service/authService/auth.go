@@ -139,7 +139,7 @@ func CheckPhone(phone string) (string, error) {
 }
 
 // AddOnlyPhone
-func AddOnlyPhone(phone string) (string, error) {
+func AddOnlyPhone(phone string, teamID uint) (string, error) {
 	// generate verify code to reset password
 	verifyCode := random.GenerateRandomDigitString(6)
 	fmt.Println(verifyCode)
@@ -159,6 +159,7 @@ func AddOnlyPhone(phone string) (string, error) {
 		return verifyCode, nil
 	}
 	user.Phone = phone
+	user.TeamID = teamID
 	user.Code = verifyCode
 	user.Role = "seller"
 	user.IsVerified = false
