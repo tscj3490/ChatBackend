@@ -95,6 +95,8 @@ func SendCode(phone string) (string, error) {
 
 	if err != nil {
 		fmt.Println(err)
+		err := errors.New("The phone number is invalid.")
+		return "", err
 	} else {
 		fmt.Println(message.Status)
 	}
@@ -120,6 +122,19 @@ func CheckPhone(phone string) (string, error) {
 
 	// generate verify code to reset password
 	verifyCode := random.GenerateRandomDigitString(6)
+
+	client := twilio.NewClient(config.Sid, config.Token)
+	fmt.Println("-----", config.Sid, config.Token, config.ServerPhone, phone)
+	message, err := twilio.NewMessage(client, config.ServerPhone, "+"+phone, twilio.Body("Verification code :"+verifyCode))
+
+	if err != nil {
+		fmt.Println(err)
+		err := errors.New("The phone number is invalid.")
+		return "", err
+	} else {
+		fmt.Println(message.Status)
+	}
+
 	if res := db.ORM.Table("users").Where("phone = ?", phone).First(&user).RecordNotFound(); res {
 		fmt.Println("---------+++-", user, res)
 		err := errors.New("You are an unregistered user.")
@@ -127,15 +142,6 @@ func CheckPhone(phone string) (string, error) {
 	}
 	fmt.Println("------------")
 	db.ORM.Table("users").Where("phone = ?", phone).UpdateColumn("code", verifyCode)
-
-	client := twilio.NewClient(config.Sid, config.Token)
-	message, err := twilio.NewMessage(client, config.ServerPhone, "+"+phone, twilio.Body("Verification code :"+verifyCode))
-
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(message.Status)
-	}
 
 	return verifyCode, err
 }
@@ -151,6 +157,8 @@ func AddOnlyPhone(phone string, teamID uint) (string, error) {
 
 	if err != nil {
 		fmt.Println(err)
+		err := errors.New("The phone number is invalid.")
+		return "", err
 	} else {
 		fmt.Println(message.Status)
 	}
