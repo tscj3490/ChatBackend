@@ -35,10 +35,15 @@ func CreateUser(user *model.User) (*model.User, error) {
 // ReadUser reads a user
 func ReadUser(id uint) (*model.User, error) {
 	user := &model.User{}
-	res := db.ORM.Table("users").Select("users.*, teams.name as team_name, teams.company_name").
-		Joins("left join teams on teams.id = users.team_id")
 	// Read Data
-	err := res.First(&user, "users.id = ?", id).Error
+	err := db.ORM.First(&user, "id = ?", id).Error
+	// res := db.ORM.Table("users").Select("users.*, teams.name as team_name, teams.company_name as company_name").
+	// 	Joins("left join teams on teams.id = users.team_id")
+	team := &model.Team{}
+	db.ORM.Table("teams").First(&team, "id=?", user.TeamID)
+	user.TeamName = team.Name
+	user.CompanyName = team.CompanyName
+
 	return user, err
 }
 
