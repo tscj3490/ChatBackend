@@ -46,7 +46,6 @@ type ListForm struct {
 func Init(parentRoute *echo.Group) {
 	parentRoute.GET("/verifyCode", verifyCode)
 	parentRoute.GET("/sendCode", sendCode)
-	parentRoute.GET("/addMember", addMember)
 	parentRoute.GET("/checkMember", checkMember)
 	parentRoute.POST("/add/teamManager", createTeamManager)
 	parentRoute.Use(middleware.JWT([]byte(config.AuthTokenKey)))
@@ -233,17 +232,18 @@ func createTeamManager(c echo.Context) error {
 // @Resource /verifyCode
 // @Router /verifyCode [post]
 func verifyCode(c echo.Context) error {
+	user := &model.User{}
 	code := c.FormValue("code")
 
-	role := "manager"
+	// role := "manager"
 	// check phone number with verify code
-	objid, result, err := authService.VerifyCode(code)
+	objid, result, user, err := authService.VerifyCode(code)
 	if result != true {
 		return response.KnownErrJSON(c, "err.phone.verify", err)
 	}
 
 	// Generate encoded token and send it as response.
-	t, err := permission.GenerateToken(objid, role)
+	t, err := permission.GenerateToken(objid, user.Role)
 	if err != nil {
 		return response.KnownErrJSON(c, "err.auth.token", err)
 	}
@@ -286,36 +286,4 @@ func inviteMember(c echo.Context) error {
 
 	// return response.SuccessJSON(c, "Server has sent verification code to you. Please confirm verification code.")
 	return response.SuccessInterface(c, code)
-}
-
-func addMember(c echo.Context) error {
-	code := c.FormValue("code")
-
-	role := "seller"
-	// check phone number with verify code
-	objid, result, err := authService.VerifyCode(code)
-	if result != true {
-		return response.KnownErrJSON(c, "err.phone.verify", err)
-	}
-
-	// Generate encoded token and send it as response.
-	t, err := permission.GenerateToken(objid, role)
-	if err != nil {
-		return response.KnownErrJSON(c, "err.auth.token", err)
-	}
-
-	return response.SuccessInterface(c, VerifiedUser{t, result})
-
-	// var err error
-	// code := c.FormValue("code")
-
-	// id := c.Get("user_idx")
-	// role := c.Get("user_role")
-	// user, err := authService.VerifyRole(id)
-	// if err != nil {
-	// 	return response.KnownErrJSON(c, "err.phone.verify", err)
-	// }
-
-	// return response.SuccessJSON(c, "Server has sent verification code to you. Please confirm verification code.")
-	// return response.SuccessInterface(c, user)
 }

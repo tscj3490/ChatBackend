@@ -170,7 +170,7 @@ func AddOnlyPhone(phone string) (string, error) {
 }
 
 // VerifyCode
-func VerifyCode(code string) (uint, bool, error) {
+func VerifyCode(code string) (uint, bool, *model.User, error) {
 
 	// generate verify code to reset password
 	var objid uint
@@ -188,7 +188,7 @@ func VerifyCode(code string) (uint, bool, error) {
 		result = false
 	}
 
-	return objid, result, err
+	return objid, result, user, err
 }
 
 // AddManager
@@ -205,8 +205,8 @@ func AddManager(managerInfo *model.ManagerInfo) (*model.User, error) {
 	user.Role = "manager"
 	user.IsVerified = false
 
-	if res := db.ORM.Where("name = ?", user.Name).First(&user).RecordNotFound(); !res {
-		err := errors.New(user.Name + " is already registered")
+	if res := db.ORM.Where("phone = ?", user.Phone).First(&user).RecordNotFound(); !res {
+		err := errors.New(user.Phone + " is already registered")
 		return nil, err
 	}
 
