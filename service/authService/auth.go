@@ -91,7 +91,7 @@ func SendCode(phone string) (string, error) {
 
 	client := twilio.NewClient(config.Sid, config.Token)
 	fmt.Println("-----", config.Sid, config.Token, config.ServerPhone, phone)
-	message, err := twilio.NewMessage(client, config.ServerPhone, "+"+phone, twilio.Body("Verification code :"+verifyCode))
+	message, err := twilio.NewMessage(client, config.ServerPhone, "+"+phone, twilio.Body("Here’s your Sellaboo Verification Code : "+verifyCode))
 
 	if err != nil {
 		fmt.Println(err)
@@ -125,7 +125,7 @@ func CheckPhone(phone string) (string, error) {
 
 	client := twilio.NewClient(config.Sid, config.Token)
 	fmt.Println("-----", config.Sid, config.Token, config.ServerPhone, phone)
-	message, err := twilio.NewMessage(client, config.ServerPhone, "+"+phone, twilio.Body("Verification code :"+verifyCode))
+	message, err := twilio.NewMessage(client, config.ServerPhone, "+"+phone, twilio.Body("Here’s your Sellaboo Verification Code : "+verifyCode))
 
 	if err != nil {
 		fmt.Println(err)
@@ -153,7 +153,7 @@ func AddOnlyPhone(phone string, teamID uint) (string, error) {
 	fmt.Println(verifyCode)
 
 	client := twilio.NewClient(config.Sid, config.Token)
-	message, err := twilio.NewMessage(client, config.ServerPhone, "+"+phone, twilio.Body("Verification code :"+verifyCode))
+	message, err := twilio.NewMessage(client, config.ServerPhone, "+"+phone, twilio.Body("Here’s your Sellaboo Verification Code : "+verifyCode))
 
 	if err != nil {
 		fmt.Println(err)
