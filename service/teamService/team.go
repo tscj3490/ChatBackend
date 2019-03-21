@@ -39,9 +39,9 @@ func ReadTeam(id uint) (*model.Team, error) {
 }
 
 // UpdateTeam reads a team
-func UpdateTeam(team *model.Team) (*model.Team, error) {
+func UpdateTeam(team *model.Team, id uint) (*model.Team, error) {
 	// Create change info
-	err := db.ORM.Model(team).Updates(team).Error
+	err := db.ORM.Model(team).Where("id = ?", id).Updates(team).Error
 	return team, err
 }
 

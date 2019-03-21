@@ -7,7 +7,6 @@ import (
 	"../../../db"
 	"../../../model"
 
-	"../../../util/email"
 	"../../../util/random"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -67,7 +66,7 @@ func CreateCustomerWithEmail(customer *model.Customer) (*model.Customer, error) 
 	fmt.Println(verifyCode)
 	fmt.Println(customer.Email)
 	fmt.Println(customer.UserName)
-	go email.SendForgotEmail(customer.Email, customer.UserName, verifyCode)
+	// go email.SendForgotEmail(customer.Email, customer.UserName, verifyCode)
 
 	// Insert Data
 	if err := db.ORM.Create(&customer).Error; err != nil {

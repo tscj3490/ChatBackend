@@ -30,7 +30,7 @@ func InitUsers(parentRoute *echo.Group) {
 	route.POST("", permission.AuthRequired(createUser))
 	// route.GET("/name", permission.AuthRequired(readUser)) //
 	route.GET("/:id", permission.AuthRequired(readUser))
-	route.PUT("", permission.AuthRequired(updateUser))
+	route.PUT("/:id", permission.AuthRequired(updateUser))
 	route.DELETE("/:id", permission.AuthRequired(deleteUser))
 
 	route.GET("", permission.AuthRequired(readUsers))
@@ -104,20 +104,19 @@ func readUser(c echo.Context) error {
 // @Resource /users
 // @Router /users/{id} [put]
 func updateUser(c echo.Context) error {
+	id, _ := strconv.Atoi(c.Param("id"))
 	user := &model.User{}
 	if err := c.Bind(user); err != nil {
 		return response.KnownErrJSON(c, "err.user.bind", err)
 	}
 
-	// id, _ := strconv.Atoi(c.Param("id"))
-	user, err := userService.UpdateUser(user)
+	user, err := userService.UpdateUser(user, uint(id))
 	if err != nil {
 		return response.KnownErrJSON(c, "err.user.udpate", err)
 	}
 
-	user, _ = userService.ReadUser(user.ID)
-	publicUser := &model.PublicUser{User: user}
-	return response.SuccessInterface(c, publicUser)
+	user, _ = userService.ReadUser(uint(id))
+	return response.SuccessInterface(c, user)
 }
 
 // @Title deleteUser

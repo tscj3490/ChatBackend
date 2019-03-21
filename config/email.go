@@ -18,3 +18,6 @@ var EmailPassword = "ZdpDs95R" // tscj3490han919
 const (
 	EmailTimeout = 10 * time.Second
 )
+
+var From = "admin@greenbaypayment.com"
+var ApiKey = "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"

@@ -16,10 +16,10 @@ func InitService() {
 
 // CreateAdmin creates a admin
 func CreateAdmin(admin *model.Admin) (*model.Admin, error) {
-	// check duplicate username
+	// check duplicate email
 	a := &model.Admin{}
-	if !db.ORM.Where("username = ?", admin.Username).First(&a).RecordNotFound() {
-		err := errors.New(admin.Username + " is already registered")
+	if !db.ORM.Where("email = ?", admin.Email).First(&a).RecordNotFound() {
+		err := errors.New(admin.Email + " is already registered")
 		return nil, err
 	}
 
@@ -65,7 +65,7 @@ func ReadAdmins(query string, offset int, count int, field string, sort int) ([]
 	res := db.ORM
 	if query != "" {
 		query = "%" + query + "%"
-		res = res.Where("username LIKE ? OR name LIKE ?", query, query)
+		res = res.Where("name LIKE ?", query)
 	}
 	// get total count of collection with initial query
 	res.Find(&admins).Count(&totalCount)
@@ -88,10 +88,10 @@ func ReadAdmins(query string, offset int, count int, field string, sort int) ([]
 	return admins, totalCount, err
 }
 
-// ReadAdminByUsername returns admin
-func ReadAdminByUsername(username string) (*model.Admin, error) {
+// ReadAdminByEmail returns admin
+func ReadAdminByEmail(email string) (*model.Admin, error) {
 	admin := &model.Admin{}
-	res := db.ORM.Where("username = ?", username).First(&admin).RecordNotFound()
+	res := db.ORM.Table("admins").Where("email = ?", email).First(&admin).RecordNotFound()
 	if res {
 		return nil, errors.New("Admin is not found")
 	}

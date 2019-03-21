@@ -20,7 +20,7 @@ func InitTeams(parentRoute *echo.Group) {
 	route := parentRoute.Group("/teams")
 
 	route.Use(middleware.JWT([]byte(config.AuthTokenKey)))
-
+	route.POST("", permission.AuthRequired(createTeam))
 	route.GET("/:id", permission.AuthRequired(readTeam))
 	route.PUT("/:id", permission.AuthRequired(updateTeam))
 	route.DELETE("/:id", permission.AuthRequired(deleteTeam))
@@ -40,6 +40,22 @@ func InitTeams(parentRoute *echo.Group) {
 // @Failure 400 {object} response.BasicResponse "err.team.create"
 // @Resource /teams
 // @Router /teams [post]
+
+func createTeam(c echo.Context) error {
+	team := &model.Team{}
+
+	if err := c.Bind(team); err != nil {
+		return response.KnownErrJSON(c, "err.team.bind", err)
+	}
+
+	// create team
+	team, err := teamService.CreateTeam(team)
+	if err != nil {
+		return response.KnownErrJSON(c, "err.team.create", err)
+	}
+
+	return response.SuccessInterface(c, team)
+}
 
 // @Title readTeam
 // @Description Read a team.
@@ -84,13 +100,13 @@ func updateTeam(c echo.Context) error {
 		return response.KnownErrJSON(c, "err.team.bind", err)
 	}
 
-	// id, _ := strconv.Atoi(c.Param("id"))
-	team, err := teamService.UpdateTeam(team)
+	id, _ := strconv.Atoi(c.Param("id"))
+	team, err := teamService.UpdateTeam(team, uint(id))
 	if err != nil {
 		return response.KnownErrJSON(c, "err.team.update", err)
 	}
 
-	team, _ = teamService.ReadTeam(team.ID)
+	team, _ = teamService.ReadTeam(uint(id))
 	return response.SuccessInterface(c, team)
 }
 

@@ -49,9 +49,9 @@ func ReadUser(id uint) (*model.User, error) {
 }
 
 // UpdateUser reads a user
-func UpdateUser(user *model.User) (*model.User, error) {
+func UpdateUser(user *model.User, id uint) (*model.User, error) {
 	// Create change info
-	err := db.ORM.Model(user).Updates(user).Error
+	err := db.ORM.Model(user).Where("id = ?", id).Updates(user).Error
 	return user, err
 }
 

@@ -17,7 +17,6 @@ import (
 	"net/http"
 	"sort"
 
-	"../../../util/email"
 	"../../../util/random"
 	"github.com/cydev/zero"
 )
@@ -56,7 +55,7 @@ func CreateVendor(vendor *model.Vendor) (*model.Vendor, error) {
 	//	hashPass := crypto.GenerateHash(verifyCode)
 	fmt.Println(verifyCode)
 	db.ORM.UpdateColumn("password", verifyCode)
-	email.SendForgotEmail(vendor.Email, vendor.UserName, verifyCode)
+	// email.SendForgotEmail(vendor.Email, vendor.UserName, verifyCode)
 
 	// Insert Data
 	if err := db.ORM.Create(&vendor).Error; err != nil {
@@ -83,15 +82,15 @@ func CreateVendorByWorking(wkinfo *model.WorktimeInfo) (*model.WorktimeInfo, err
 
 		//		db.ORM.Last(&o)
 	}
-//	db.ORM.Table("worktimes").Where("vendor_id = ?", wkinfo.VendorID).Update("vendor_id", wkinfo.VendorID).Find(&opentm)
+	//	db.ORM.Table("worktimes").Where("vendor_id = ?", wkinfo.VendorID).Update("vendor_id", wkinfo.VendorID).Find(&opentm)
 	db.ORM.Table("specialtimes").Where("vendor_id = ?", wkinfo.VendorID).Delete(&specdt)
 	specdt = wkinfo.SpecialDate
 	for _, s := range specdt {
 		s.VendorID = wkinfo.VendorID
 		db.ORM.Table("specialtimes").NewRecord(s)
-		db.ORM.Table("specialtimes").Create(&s)		
+		db.ORM.Table("specialtimes").Create(&s)
 	}
-//	db.ORM.Table("specialtimes").Where("vendor_id = ?", wkinfo.VendorID).Update("vendor_id", wkinfo.VendorID).Find(&specdt)
+	//	db.ORM.Table("specialtimes").Where("vendor_id = ?", wkinfo.VendorID).Update("vendor_id", wkinfo.VendorID).Find(&specdt)
 	return wkinfo, nil
 }
 
@@ -118,7 +117,7 @@ func CreateVendorWithEmail(vendor *model.Vendor) (*model.Vendor, error) {
 	fmt.Println(vendor.Email)
 	fmt.Println(vendor.UserName)
 
-	go email.SendForgotEmail(vendor.Email, vendor.UserName, verifyCode)
+	// go email.SendForgotEmail(vendor.Email, vendor.UserName, verifyCode)
 
 	// Insert Data
 	if err := db.ORM.Create(&vendor).Error; err != nil {

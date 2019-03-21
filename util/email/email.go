@@ -9,49 +9,52 @@ import (
 	"../../util/log"
 
 	gomail "gopkg.in/gomail.v2"
+
+	"github.com/sendgrid/sendgrid-go"
+	"github.com/sendgrid/sendgrid-go/helpers/mail"
 )
 
 // SendForgotEmail sends forgot email
-func SendForgotEmail(email string, fullname string, verifyCode string) error {
-	m := gomail.NewMessage()
-	m.SetHeader("From", "aaron@wesupportit.net") // config.EmailUsername
-	m.SetHeader("To", email)
-	m.SetHeader("Subject", "Welcome to chatapp")
-
-	text := `<p>Hello,<strong>` + fullname + `</strong></p>
-			 <p>We've received a request to reset your password. If you didn't make the request, just ignore this email. Otherwise, you can reset your password using this verify code:
-			 </p>
-			 <p><strong><h1>` + verifyCode + `</h1></strong></p>
-			 <p>Thanks,</p>`
-	m.SetBody("text/html", getEmailBody(text))
-
-	// send the email to User
-	d := gomail.NewDialer(config.EmailServer, config.EmailPort, config.EmailUsername, config.EmailPassword)
-	// fmt.Println(config.EmailServer, config.EmailPort, config.EmailUsername, config.EmailPassword)
-	if err := d.DialAndSend(m); err != nil {
+func SendForgotEmail(email string, pass string) error {
+	from := mail.NewEmail("Your new password", config.From)
+	subject := "This is your new password."
+	to := mail.NewEmail("Please take your new password", email)
+	plainTextContent := "After log in, you can change your password again in reset password."
+	htmlContent := `<p>Hello,<strong>` + email + `</strong></p>
+	<p>We've received a request to reset your password. If you didn't make the request, just ignore this email. After log in with this password to admin panel, you can change password in reset password setting.
+	</p>
+	<p><strong><h1>` + pass + `</h1></strong></p>
+	<p>Thanks,</p>`
+	message := mail.NewSingleEmail(from, subject, to, plainTextContent, htmlContent)
+	client := sendgrid.NewSendClient(config.ApiKey)
+	response, err := client.Send(message)
+	if err != nil {
 		fmt.Println("email err:", err)
 		log.Warn("ForgotEmail sending is failed!")
-		return err
+	} else {
+		fmt.Println(response.StatusCode)
+		fmt.Println(response.Body)
+		fmt.Println(response.Headers)
+		log.Info("ForgotEmail sending is successed!")
 	}
 
-	log.Info("ForgotEmail sending is successed!")
 	return nil
 }
 
 // SendEmail sends forgot email
-func SendEmail(email string, order *model.Order, verifyCode string) error {
+func SendEmail(email string) error {
 	m := gomail.NewMessage()
 	m.SetHeader("From", "skyclean906@gmail.com") // config.EmailUsername
 	m.SetHeader("To", email)
 	m.SetHeader("Subject", "Welcome to chatapp")
+	text := "Email"
+	// text := `<p>Service Name : <strong>` + order.ServiceName + `</strong></p>
+	// 		<p>Device Name : <strong>` + order.DeviceName + `</strong></p>
+	// 		<p>Make Name : <strong>` + order.MakeName + `</strong></p>
+	// 		<p>Model Name : <strong>` + order.ModelName + `</strong></p>
 
-	text := `<p>Service Name : <strong>` + order.ServiceName + `</strong></p>
-			<p>Device Name : <strong>` + order.DeviceName + `</strong></p>
-			<p>Make Name : <strong>` + order.MakeName + `</strong></p>
-			<p>Model Name : <strong>` + order.ModelName + `</strong></p>	
-					
-			 <p><strong><h1>` + verifyCode + `</h1></strong></p>
-			 <p>Thanks,</p>`
+	// 		 <p><strong><h1>` + verifyCode + `</h1></strong></p>
+	// 		 <p>Thanks,</p>`
 	m.SetBody("text/html", getEmailBody(text))
 
 	// send the email to User

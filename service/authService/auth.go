@@ -10,73 +10,52 @@ import (
 	"../../util/email"
 	"../../util/random"
 	twilio "github.com/carlosdp/twiliogo"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // ForgotPassword handle client email to recovery password
-func ForgotPassword(email_ string, role string) bool {
-	// generate verify code to reset password
-	verifyCode := random.GenerateRandomDigitString(6)
-	fmt.Println(verifyCode)
+func ForgotPassword(email_ string) bool {
 
-	customer := &model.Customer{}
-	vendor := &model.Vendor{}
-	db.ORM.Table("customers").Where("username = ?", email_).Find(&customer)
-	db.ORM.Table("vendors").Where("username = ?", email_).Find(&vendor)
-	var fullname string
-	if role == "customer" {
-		fullname = customer.UserName
-		go email.SendForgotEmail(customer.Email, fullname, verifyCode)
+	// generate verify code to reset password
+	code := random.GenerateRandomDigitString(6)
+
+	admin := &model.Admin{}
+	res := db.ORM.Table("admins").Where("email = ?", email_).Find(&admin).RecordNotFound()
+	if res {
+		return false
 	}
-	if role == "vendor" {
-		fullname = vendor.UserName
-		go email.SendForgotEmail(vendor.Email, fullname, verifyCode)
+
+	password, err := bcrypt.GenerateFromPassword([]byte(code), 10)
+	if err != nil {
+		return false
 	}
-	// send forgot email to user email
+
+	db.ORM.Table("admins").Where("email = ?", email_).Update("password", string(password))
+
+	go email.SendForgotEmail(email_, code)
 
 	return true
 }
 
 // ChangePassword
 func ChangePassword(chgpass *model.ChangePass) (*model.ChangePass, error) {
-	customer := &model.Customer{}
-	vendor := &model.Vendor{}
+	admin := &model.Admin{}
 	var err error
-	//	var password []byte
-	fmt.Println(chgpass.Email, chgpass.OldPass)
+	var password []byte
 
-	//	password, err = bcrypt.GenerateFromPassword([]byte(chgpass.OldPass), 10)
-	//	chgpass.OldPass = string(password)
-	//	password, err = bcrypt.GenerateFromPassword([]byte(chgpass.NewPass), 10)
-	//	chgpass.NewPass = string(password)
-
-	if chgpass.Role == "customer" {
-		if res := db.ORM.Table("customers").First(&customer, "email = ?", chgpass.Email).RecordNotFound(); res {
-			err = errors.New(chgpass.Email + "doesn't exist, Please input correctly.")
-			fmt.Println("This email doesn't exist, Please input correctly.")
-			return nil, nil
+	if res := db.ORM.Table("admins").First(&admin, "email = ?", chgpass.Email).RecordNotFound(); res {
+		err = errors.New(chgpass.Email + "doesn't exist, Please input correctly.")
+		fmt.Println("This email doesn't exist, Please input correctly.")
+		return nil, nil
+	} else {
+		err = bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(chgpass.OldPass))
+		if err != nil {
+			err = errors.New("Old password doesn't correct, Please input correctly.")
 		} else {
-			//			if customer.Password == chgpass.OldPass {
-			customer.Password = chgpass.NewPass
-			db.ORM.Table("customers").Where("email = ?", chgpass.Email).Update("password", chgpass.NewPass)
+			password, err = bcrypt.GenerateFromPassword([]byte(chgpass.NewPass), 10)
+			chgpass.NewPass = string(password)
+			db.ORM.Table("admins").Where("email = ?", chgpass.Email).Update("password", chgpass.NewPass)
 			err = errors.New("Password is changed correctly.")
-			//			} else {
-			//				err = errors.New(chgpass.OldPass + "doesn't correct, Please input correctly.")
-			//			}
-		}
-	}
-	if chgpass.Role == "vendor" {
-		if res := db.ORM.Table("vendors").First(&vendor, "email = ?", chgpass.Email).RecordNotFound(); res {
-			err = errors.New(chgpass.Email + "doesn't exist, Please input correctly.")
-			fmt.Println("This email doesn't exist, Please input correctly.")
-			return nil, nil
-		} else {
-			//			if vendor.Password == chgpass.OldPass {
-			vendor.Password = chgpass.NewPass
-			db.ORM.Table("vendors").Where("email = ?", chgpass.Email).Update("password", chgpass.NewPass)
-			err = errors.New("Password is changed correctly.")
-			//			} else {
-			//				err = errors.New(chgpass.OldPass + "doesn't correct, Please input correctly.")
-			//			}
 		}
 	}
 

@@ -33,7 +33,7 @@ func loginAdmin(c echo.Context) error {
 	}
 
 	// check admin crediential
-	a, err := adminService.ReadAdminByUsername(admin.Username)
+	a, err := adminService.ReadAdminByEmail(admin.Email)
 	if err != nil {
 		return response.KnownErrJSON(c, "err.admin.incorrect", errors.New("Incorrect email or password"))
 	}
@@ -74,9 +74,9 @@ func registerAdmin(c echo.Context) error {
 	}
 
 	// check existed username
-	if _, err := adminService.ReadAdminByUsername(admin.Username); err == nil {
+	if _, err := adminService.ReadAdminByEmail(admin.Email); err == nil {
 		return response.KnownErrJSON(c, "err.admin.exist",
-			errors.New("Same username is existed. Please input other username"))
+			errors.New("Same email is existed. Please input other email"))
 	}
 
 	// create admin with registered info

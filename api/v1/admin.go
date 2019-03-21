@@ -18,9 +18,9 @@ import (
 // @Description Admins's router group.
 func InitAdmins(parentRoute *echo.Group) {
 	route := parentRoute.Group("/admins")
+	route.POST("", createAdmin)
 	route.Use(middleware.JWT([]byte(config.AuthTokenKey)))
 
-	route.POST("", permission.AuthRequired(createAdmin))
 	route.GET("/:id", permission.AuthRequired(readAdmin))
 	route.PUT("/:id", permission.AuthRequired(updateAdmin))
 	route.DELETE("/:id", permission.AuthRequired(deleteAdmin))

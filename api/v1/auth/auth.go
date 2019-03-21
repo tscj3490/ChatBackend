@@ -49,23 +49,19 @@ func Init(parentRoute *echo.Group) {
 	parentRoute.GET("/sendCode", sendCode)
 	parentRoute.GET("/checkMember", checkMember)
 	parentRoute.POST("/add/teamManager", createTeamManager)
-	parentRoute.Use(middleware.JWT([]byte(config.AuthTokenKey)))
-	// init admin
-	// initAdmin(parentRoute)
-	// init user
-	// initUser(parentRoute)
-	// // init vendor
-	// initVendor(parentRoute)
-	// // init customer
-	// initCustomer(parentRoute)
-	// init book
-	// initBook(parentRoute)
 
-	// parentRoute.GET("/forgotPassword", forgotPassword)
+	parentRoute.GET("/admin/forgotPassword", forgotPassword)
+	parentRoute.POST("/admin/login", loginAdmin)
+	parentRoute.POST("/admin/register", registerAdmin)
+
+	parentRoute.Use(middleware.JWT([]byte(config.AuthTokenKey)))
+
 	parentRoute.GET("/inviteMember", permission.AuthRequired(inviteMember))
 	parentRoute.GET("/get/profile", permission.AuthRequired(getProfile))
 	parentRoute.POST("/update/profile", permission.AuthRequired(updateProfile))
 	parentRoute.GET("/get/userList", permission.AuthRequired(getUsersByTeamID))
+
+	parentRoute.POST("/admin/changePassword", permission.AuthRequired(changePassword))
 }
 
 func initAdmin(parentRoute *echo.Group) {
@@ -109,11 +105,10 @@ func initBook(parentRoute *echo.Group) {
 // @Resource /forgotPassword
 // @Router /forgotPassword [post]
 func forgotPassword(c echo.Context) error {
-	username := c.FormValue("username")
-	role := c.FormValue("role")
+	email := c.FormValue("email")
 	// handle forgot password
-	if ok := authService.ForgotPassword(username, role); !ok {
-		return response.KnownErrJSON(c, "err.username.read", errors.New("Username is not existed"))
+	if ok := authService.ForgotPassword(email); !ok {
+		return response.KnownErrJSON(c, "err.email.read", errors.New("Email is not existed"))
 	}
 	return response.SuccessJSON(c, "Server has sent email to you. Please check your email and reset password.")
 }

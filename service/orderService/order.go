@@ -94,7 +94,7 @@ func SetOrderByCustomer(obc *model.BookingInfo) (*model.BookingInfo, error) {
 		db.ORM.Create(&os1)
 	}
 
-	go email.SendEmail(pro.Email, order, refKey)
+	// go email.SendEmail(pro.Email, order, refKey)
 
 	return obc, nil
 

@@ -5,9 +5,8 @@ import "time"
 // Admin model
 type Admin struct {
 	ID        uint      `json:"id" gorm:"primary_key" description:"Object ID"`
-	DeptID    uint      `json:"deptId" gorm:"dept_id"`
 	Name      string    `json:"name" description:"Name"`
-	Username  string    `json:"username" description:"Username unique name"`
+	Email     string    `json:"email" gorm:"email"`
 	Password  string    `json:"password"`
 	Avatar    string    `json:"avatar"`
 	Role      int       `json:"role"`
@@ -26,7 +25,7 @@ type PublicAdmin struct {
 
 // ChangePass struct
 type ChangePass struct {
-	Role    string `json:"role" gorm:"-"`
+	// Role    string `json:"role" gorm:"-"`
 	Email   string `json:"email" gorm:"-"`
 	OldPass string `json:"old_password" gorm:"-"`
 	NewPass string `json:"new_password" gorm:"-"`
@@ -34,5 +33,5 @@ type ChangePass struct {
 
 // TableName indicates table name of user
 func (Admin) TableName() string {
-	return "tbl_system_user"
+	return "admins"
 }
