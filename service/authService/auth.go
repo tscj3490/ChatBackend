@@ -46,16 +46,18 @@ func ChangePassword(chgpass *model.ChangePass) (*model.ChangePass, error) {
 	if res := db.ORM.Table("admins").First(&admin, "email = ?", chgpass.Email).RecordNotFound(); res {
 		err = errors.New(chgpass.Email + "doesn't exist, Please input correctly.")
 		fmt.Println("This email doesn't exist, Please input correctly.")
-		return nil, nil
+		return nil, err
 	} else {
 		err = bcrypt.CompareHashAndPassword([]byte(admin.Password), []byte(chgpass.OldPass))
 		if err != nil {
+			fmt.Println("Here-1")
 			err = errors.New("Old password doesn't correct, Please input correctly.")
+			return nil, err
 		} else {
+			fmt.Println("Here-2")
 			password, err = bcrypt.GenerateFromPassword([]byte(chgpass.NewPass), 10)
 			chgpass.NewPass = string(password)
 			db.ORM.Table("admins").Where("email = ?", chgpass.Email).Update("password", chgpass.NewPass)
-			err = errors.New("Password is changed correctly.")
 		}
 	}
 
