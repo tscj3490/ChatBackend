@@ -59,5 +59,7 @@ func RouteAPI(parentRoute *echo.Echo) {
 		v1.InitCompanies(route)
 		v1.InitTeams(route)
 		v1.InitRoles(route)
+		v1.InitChatRooms(route)
+		v1.InitReminders(route)
 	}
 }

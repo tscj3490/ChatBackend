@@ -24,6 +24,8 @@ func GormInit() (*gorm.DB, error) {
 		&model.Team{},
 		&model.Role{},
 		&model.Admin{},
+		&model.ChatRoom{},
+		&model.Reminder{},
 	)
 	fmt.Println("-----Migration OK!")
 	// Then you could invoke `*sql.DB`'s functions with it
