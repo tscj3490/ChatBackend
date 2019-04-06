@@ -6,6 +6,7 @@ import "time"
 type Reminder struct {
 	ID          uint      `json:"id" gorm:"primary_key"`
 	CreatorID   string    `json:"creatorId" gorm:"creator_id"`
+	Title       string    `json:"title" gorm:"title"`
 	Description string    `json:"description" gorm:"description"`
 	MeetingTime string    `json:"meeting_time" gorm:"meeting_time"`
 	GroupID     string    `json:"groupId" gorm:"groupId"`
