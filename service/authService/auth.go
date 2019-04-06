@@ -145,18 +145,19 @@ func AddOnlyPhone(phone string, teamID uint) (string, error) {
 	}
 
 	user := &model.User{}
-	user.Phone = phone
-	user.TeamID = teamID
-	user.Role = "seller"
-	user.IsVerified = false
-	fmt.Println("+++", verifyCode)
-	if err := db.ORM.Create(&user).Error; err != nil {
-		return verifyCode, err
-	}
 
 	if res := db.ORM.Where("phone = ?", phone).First(&user).RecordNotFound(); !res {
 		db.ORM.Table("users").Where("phone = ?", phone).UpdateColumn("code", verifyCode)
 		return verifyCode, nil
+	} else {
+		user.Phone = phone
+		user.TeamID = teamID
+		user.Role = "seller"
+		user.IsVerified = false
+		user.Code = verifyCode
+		if err := db.ORM.Create(&user).Error; err != nil {
+			return verifyCode, err
+		}
 	}
 
 	return verifyCode, err
