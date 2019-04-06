@@ -9,6 +9,7 @@ type Reminder struct {
 	Title       string    `json:"title" gorm:"title"`
 	Description string    `json:"description" gorm:"description"`
 	MeetingTime string    `json:"meeting_time" gorm:"meeting_time"`
+	Location    string    `json:"location" gorm:"location"`
 	GroupID     string    `json:"groupId" gorm:"groupId"`
 	Deleted     bool      `json:"deleted" gorm:"deleted"`
 	CreatedAt   time.Time `json:"createdAt" gorm:"createdAt"`
