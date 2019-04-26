@@ -152,7 +152,7 @@ func AddOnlyPhone(phone string, teamID uint) (string, error) {
 	} else {
 		user.Phone = phone
 		user.TeamID = teamID
-		user.Role = "seller"
+		user.Role = "Team Member"
 		user.IsVerified = false
 		user.Code = verifyCode
 		if err := db.ORM.Create(&user).Error; err != nil {
@@ -196,7 +196,7 @@ func AddManager(managerInfo *model.ManagerInfo) (*model.User, error) {
 	user.Name = managerInfo.Name
 	user.Phone = managerInfo.Phone
 	user.Email = managerInfo.Email
-	user.Role = "manager"
+	user.Role = "Manager"
 	user.IsVerified = false
 
 	if res := db.ORM.Where("phone = ?", user.Phone).First(&user).RecordNotFound(); !res {
@@ -216,7 +216,7 @@ func AddManager(managerInfo *model.ManagerInfo) (*model.User, error) {
 // VerifyRole
 func VerifyRole(ID uint) (*model.User, error) {
 	user := &model.User{}
-	if err := db.ORM.Where("role = ?", "manager").First(&user, ID).Error; err != nil {
+	if err := db.ORM.Where("role = ?", "Manager").First(&user, ID).Error; err != nil {
 		return nil, err
 	}
 
