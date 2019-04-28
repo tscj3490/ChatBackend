@@ -12,6 +12,20 @@ type ChatRoom struct {
 	UpdatedAt time.Time `json:"updatedAt" gorm:"updatedAt"`
 }
 
+// SendMessageInfo
+type SendMessageInfo struct {
+	GroupID uint `json:"groupId"`
+	Message *Msg `json:"message"`
+}
+
+// Msg
+type Msg struct {
+	Text      string    `json:"text"`
+	Image     string    `json:"image"`
+	Contact   string    `json:"contact"`
+	CreatedAt time.Time `json:"createdAt"`
+}
+
 // TableName indicates table name of user
 func (ChatRoom) TableName() string {
 	return "chat_room"

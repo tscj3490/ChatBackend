@@ -230,10 +230,11 @@ func createTeamManager(c echo.Context) error {
 func verifyCode(c echo.Context) error {
 	user := &model.User{}
 	code := c.FormValue("code")
+	pushToken := c.FormValue("pushToken")
 
 	// role := "manager"
 	// check phone number with verify code
-	objid, result, user, err := authService.VerifyCode(code)
+	objid, result, user, err := authService.VerifyCode(code, pushToken)
 	if result != true {
 		return response.KnownErrJSON(c, "err.phone.verify", err)
 	}

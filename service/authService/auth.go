@@ -164,7 +164,7 @@ func AddOnlyPhone(phone string, teamID uint) (string, error) {
 }
 
 // VerifyCode
-func VerifyCode(code string) (uint, bool, *model.User, error) {
+func VerifyCode(code string, pushToken string) (uint, bool, *model.User, error) {
 
 	// generate verify code to reset password
 	var objid uint
@@ -172,12 +172,12 @@ func VerifyCode(code string) (uint, bool, *model.User, error) {
 	var err error
 	user := &model.User{}
 
-	err = db.ORM.Table("users").Where("code = ?", code).Find(&user).Error
+	err = db.ORM.Table("users").Where("code = ?", code).First(&user).Error
 	if err == nil {
 		objid = user.ID
 		result = true
-		db.ORM.Table("users").UpdateColumn("is_verified", true)
-		// db.ORM.Table("users").UpdateColumn("role", "seller")
+		db.ORM.Table("users").Where("code = ?", code).UpdateColumn("is_verified", true)
+		db.ORM.Table("users").Where("code = ?", code).UpdateColumn("push_token", pushToken)
 	} else {
 		result = false
 	}

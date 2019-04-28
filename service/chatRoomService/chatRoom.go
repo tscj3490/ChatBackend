@@ -1,8 +1,11 @@
 package chatRoomService
 
 import (
+	"strings"
+
 	"../../db"
 	"../../model"
+	"../../util/notification"
 )
 
 // InitService inits service
@@ -41,6 +44,43 @@ func DeleteChatRoom(id uint) error {
 	return err
 }
 
+// SendMessage
+func SendMessage(msgInfo *model.SendMessageInfo) (*model.ChatRoom, error) {
+	user := &model.User{}
+	chatRoom := &model.ChatRoom{}
+	var err error
+	var body string
+
+	if msgInfo.Message.Text != "" {
+		body = msgInfo.Message.Text
+	} else {
+		body = "Image or Contact"
+		if msgInfo.Message.Image != "" {
+			body = "Image"
+		}
+		if msgInfo.Message.Contact != "" {
+			body = "Contact"
+		}
+	}
+	err = db.ORM.First(&chatRoom, "id = ?", msgInfo.GroupID).Error
+
+	if err == nil {
+		ids := strings.Split(chatRoom.UserIDs, ",")
+		for _, id := range ids {
+			err = db.ORM.First(&user, "id = ?", id).Error
+			if err != nil {
+				continue
+			} else {
+				if user.Name == "" {
+					user.Name = "Unnamed"
+				}
+				notification.SendNotification(user.PushToken, user.Name, body)
+			}
+		}
+	}
+	return chatRoom, nil
+}
+
 // ReadChatRooms return chatRooms after retreive with params
 func ReadChatRooms(query string, offset int, count int, field string, sort int, userID uint) ([]*model.ChatRoom, int, error) {
 	chatRooms := []*model.ChatRoom{}
@@ -75,17 +115,15 @@ func ReadChatRooms(query string, offset int, count int, field string, sort int, 
 	return chatRooms, totalCount, err
 }
 
-// ReadChatRoomsByUserId return chatRooms after retreive with params
-func ReadChatRoomsByUserId(id string) ([]*model.ChatRoom, int, error) {
+// ReadChatRoomsByGroupId return chatRooms after retreive with params
+func ReadChatRoomsByGroupId(id string) ([]*model.ChatRoom, int, error) {
 	chatRooms := []*model.ChatRoom{}
 	totalCount := 0
 
 	res := db.ORM
-	// if id != "" {
-	// 	res = res.Where("user_id = ?", userID)
-	// }
-	query := "%" + id + "%"
-	res = res.Where("user_ids LIKE ?", query)
+	if id != "" {
+		res = res.Where("id = ?", id)
+	}
 
 	// get total count of collection with initial query
 	res.Find(&chatRooms).Count(&totalCount)
@@ -93,4 +131,29 @@ func ReadChatRoomsByUserId(id string) ([]*model.ChatRoom, int, error) {
 	err := res.Find(&chatRooms).Error
 
 	return chatRooms, totalCount, err
+}
+
+// ReadChatRoomsByUserId return chatRooms after retreive with params
+func ReadChatRoomsByUserId(id string) ([]*model.ChatRoom, int, error) {
+	chatRooms := []*model.ChatRoom{}
+	totalCount := 0
+
+	res := db.ORM
+
+	groupList := []*model.ChatRoom{}
+
+	res.Find(&chatRooms).Count(&totalCount)
+
+	for _, chatroom := range chatRooms {
+		ids := strings.Split(chatroom.UserIDs, ",")
+		for _, i := range ids {
+			if i != id {
+				continue
+			} else {
+				groupList = append(groupList, chatroom)
+			}
+		}
+	}
+
+	return groupList, totalCount, nil
 }

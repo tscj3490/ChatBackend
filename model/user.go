@@ -15,6 +15,7 @@ type User struct {
 	Code        string    `json:"code" gorm:"column:code"`
 	IsVerified  bool      `json:"is_verified" gorm:"column:is_verified"`
 	Token       string    `json:"token" gorm:"column:token"`
+	PushToken   string    `json:"pushToken" gorm:"column:push_token"`
 	Deleted     bool      `json:"deleted"   gorm:"column:deleted"`
 	CreatedAt   time.Time `json:"created_at"   gorm:"column:created_at"`
 	UpdatedAt   time.Time `json:"updated_at"   gorm:"column:updated_at"`

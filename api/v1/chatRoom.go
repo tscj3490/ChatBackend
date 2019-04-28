@@ -23,6 +23,9 @@ func InitChatRooms(parentRoute *echo.Group) {
 	route.POST("", permission.AuthRequired(createChatRoom))
 	route.GET("/:id", permission.AuthRequired(readChatRoom))
 	route.GET("/userId", permission.AuthRequired(readChatRoomByUserId))
+	route.GET("/groupId", permission.AuthRequired(readChatRoomByGroupId))
+	route.POST("/sendMessage", permission.AuthRequired(sendMessage))
+
 	route.PUT("/:id", permission.AuthRequired(updateChatRoom))
 	route.DELETE("/:id", permission.AuthRequired(deleteChatRoom))
 
@@ -56,6 +59,24 @@ func createChatRoom(c echo.Context) error {
 	return response.SuccessInterface(c, chatRoom)
 }
 
+// sendMessage
+func sendMessage(c echo.Context) error {
+	sendMsgInfo := &model.SendMessageInfo{}
+	chatRoom := &model.ChatRoom{}
+	var err error
+
+	if err := c.Bind(sendMsgInfo); err != nil {
+		return response.KnownErrJSON(c, "err.sendMsgInfo.bind", err)
+	}
+
+	chatRoom, err = chatRoomService.SendMessage(sendMsgInfo)
+	if err != nil {
+		return response.KnownErrJSON(c, "err.sendMsgInfo.send", err)
+	}
+
+	return response.SuccessInterface(c, chatRoom)
+}
+
 // @Title readChatRoom
 // @Description Read a chatRoom.
 // @Accept  json
@@ -82,6 +103,18 @@ func readChatRoomByUserId(c echo.Context) error {
 
 	// read chatRooms with params
 	chatRooms, total, err := chatRoomService.ReadChatRoomsByUserId(id)
+	if err != nil {
+		return response.KnownErrJSON(c, "err.chatRoom.read", err)
+	}
+
+	return response.SuccessInterface(c, &ListForm{total, chatRooms})
+}
+
+func readChatRoomByGroupId(c echo.Context) error {
+	id := c.FormValue("id")
+
+	// read chatRooms with params
+	chatRooms, total, err := chatRoomService.ReadChatRoomsByGroupId(id)
 	if err != nil {
 		return response.KnownErrJSON(c, "err.chatRoom.read", err)
 	}
