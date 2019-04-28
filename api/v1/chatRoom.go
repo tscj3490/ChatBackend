@@ -7,6 +7,7 @@ import (
 	"../../model"
 	"../../service/authService/permission"
 	"../../service/chatRoomService"
+	"../../service/userService"
 	"../response"
 
 	"github.com/labstack/echo"
@@ -63,13 +64,19 @@ func createChatRoom(c echo.Context) error {
 func sendMessage(c echo.Context) error {
 	sendMsgInfo := &model.SendMessageInfo{}
 	chatRoom := &model.ChatRoom{}
+
+	id := uint(c.Get("user_idx").(float64))
 	var err error
+	user, err := userService.ReadUser(id)
+	if err != nil {
+		return response.KnownErrJSON(c, "User doesn't exist!", err)
+	}
 
 	if err := c.Bind(sendMsgInfo); err != nil {
 		return response.KnownErrJSON(c, "err.sendMsgInfo.bind", err)
 	}
 
-	chatRoom, err = chatRoomService.SendMessage(sendMsgInfo)
+	chatRoom, err = chatRoomService.SendMessage(sendMsgInfo, user.Name)
 	if err != nil {
 		return response.KnownErrJSON(c, "err.sendMsgInfo.send", err)
 	}

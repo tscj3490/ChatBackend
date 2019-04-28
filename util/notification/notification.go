@@ -16,7 +16,7 @@ func SendNotification(token string, title string, body string) {
 
 	// Create a new Expo SDK client
 	client := expo.NewPushClient(nil)
-
+	fmt.Println("====", title, body, pushToken)
 	// Publish message
 	response, err := client.Publish(
 		&expo.PushMessage{

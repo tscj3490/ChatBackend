@@ -127,7 +127,7 @@ func changePassword(c echo.Context) error {
 	}
 
 	return response.SuccessInterface(c, chgpass)
-}
+} 
 
 // getProfile
 func getProfile(c echo.Context) error {
