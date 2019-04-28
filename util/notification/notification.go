@@ -11,7 +11,7 @@ func SendNotification(token string, title string, body string) {
 	// To check the token is valid
 	pushToken, err := expo.NewExponentPushToken(token)
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 	}
 
 	// Create a new Expo SDK client
@@ -30,7 +30,7 @@ func SendNotification(token string, title string, body string) {
 	)
 	// Check errors
 	if err != nil {
-		panic(err)
+		fmt.Println(err)
 		return
 	}
 	// Validate responses

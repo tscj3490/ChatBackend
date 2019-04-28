@@ -1,6 +1,7 @@
 package chatRoomService
 
 import (
+	"fmt"
 	"strings"
 
 	"../../db"
@@ -46,7 +47,6 @@ func DeleteChatRoom(id uint) error {
 
 // SendMessage
 func SendMessage(msgInfo *model.SendMessageInfo) (*model.ChatRoom, error) {
-	user := &model.User{}
 	chatRoom := &model.ChatRoom{}
 	var err error
 	var body string
@@ -66,15 +66,24 @@ func SendMessage(msgInfo *model.SendMessageInfo) (*model.ChatRoom, error) {
 
 	if err == nil {
 		ids := strings.Split(chatRoom.UserIDs, ",")
+
 		for _, id := range ids {
+			user := &model.User{}
 			err = db.ORM.First(&user, "id = ?", id).Error
+
 			if err != nil {
-				continue
+				// continue
 			} else {
-				if user.Name == "" {
-					user.Name = "Unnamed"
+				if user != nil {
+					if user.Name == "" {
+						user.Name = "Unnamed"
+					}
+					fmt.Println("====", user.PushToken, user.Name, body)
+					if user.PushToken != "" {
+						go notification.SendNotification(user.PushToken, user.Name, body)
+					}
 				}
-				notification.SendNotification(user.PushToken, user.Name, body)
+
 			}
 		}
 	}
