@@ -6,6 +6,7 @@ import (
 
 	"../api"
 	"../config"
+	"../db"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -14,6 +15,7 @@ import (
 // Run echo framework...
 func Run() {
 	printLogo()
+	db.GormInit()
 
 	ch := make(chan struct{})
 	startServer(ch)
