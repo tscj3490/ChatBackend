@@ -11,7 +11,7 @@ var MysqlHost = "localhost"
 var MysqlPort = "3306"
 
 // MysqlUser ...
-var MysqlUser = "root" //root //skyclean
+var MysqlUser = "chatuser" //root //chatuser
 
 // MysqlPassword ...
 var MysqlPassword = "Terry123!" //root // Terry123!
@@ -25,7 +25,7 @@ const (
 	// for DEVELOPMENT
 	MysqlHostDev     = "localhost"
 	MysqlPortDev     = "3306"
-	MysqlUserDev     = "root"      //root  //skyclean
+	MysqlUserDev     = "chatuser"  //root  //chatuser
 	MysqlPasswordDev = "Terry123!" //root  //Terry123!
 	MysqlDatabaseDev = "chat"
 	MysqlOptionsDev  = "charset=utf8&parseTime=True"
