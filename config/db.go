@@ -25,8 +25,8 @@ const (
 	// for DEVELOPMENT
 	MysqlHostDev     = "localhost"
 	MysqlPortDev     = "3306"
-	MysqlUserDev     = "root" //root  //skyclean
-	MysqlPasswordDev = "root" //root  //7iD6u%0g
+	MysqlUserDev     = "root"      //root  //skyclean
+	MysqlPasswordDev = "Terry123!" //root  //7iD6u%0g
 	MysqlDatabaseDev = "chat"
 	MysqlOptionsDev  = "charset=utf8&parseTime=True"
 	// for PRODUCTION
