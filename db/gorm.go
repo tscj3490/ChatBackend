@@ -27,7 +27,7 @@ func GormInit() (*gorm.DB, error) {
 		&model.ChatRoom{},
 		&model.Reminder{},
 	)
-	fmt.Println("-----Migration OK!")
+	fmt.Println("------Migration OK!")
 	// Then you could invoke `*sql.DB`'s functions with it
 	db.DB().Ping()
 	db.DB().SetMaxIdleConns(10)

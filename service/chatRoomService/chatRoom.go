@@ -84,7 +84,6 @@ func SendMessage(msgInfo *model.SendMessageInfo, senderName string) (*model.Chat
 						go notification.SendNotification(user.PushToken, senderName, body)
 					}
 				}
-
 			}
 		}
 	}
