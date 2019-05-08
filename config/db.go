@@ -14,7 +14,7 @@ var MysqlPort = "3306"
 var MysqlUser = "root" //root //skyclean
 
 // MysqlPassword ...
-var MysqlPassword = "root" //root // 7iD6u%0g
+var MysqlPassword = "Terry123!" //root // 7iD6u%0g
 
 // MysqlDatabase ...
 var MysqlDatabase = "chat"
