@@ -19,7 +19,7 @@ func GormInit() (*gorm.DB, error) {
 	db, err := gorm.Open("mysql", config.MysqlDSL())
 	// Get database connection handle [*sql.DB](http://golang.org/pkg/database/sql/#DB)
 	db.DB()
-	fmt.Println("------Before Migration")
+	fmt.Println("------Before Migration", err)
 	db.AutoMigrate(
 		&model.User{},
 		&model.Company{},
