@@ -26,6 +26,7 @@ func InitChatRooms(parentRoute *echo.Group) {
 	route.GET("/userId", permission.AuthRequired(readChatRoomByUserId))
 	route.GET("/groupId", permission.AuthRequired(readChatRoomByGroupId))
 	route.POST("/sendMessage", permission.AuthRequired(sendMessage))
+	route.POST("/directMessage", permission.AuthRequired(directMessage))
 
 	route.PUT("/:id", permission.AuthRequired(updateChatRoom))
 	route.DELETE("/:id", permission.AuthRequired(deleteChatRoom))
@@ -79,6 +80,30 @@ func sendMessage(c echo.Context) error {
 	chatRoom, err = chatRoomService.SendMessage(sendMsgInfo, user.Name)
 	if err != nil {
 		return response.KnownErrJSON(c, "err.sendMsgInfo.send", err)
+	}
+
+	return response.SuccessInterface(c, chatRoom)
+}
+
+// directMessage
+func directMessage(c echo.Context) error {
+	directMsgInfo := &model.DirectMessageInfo{}
+	chatRoom := &model.ChatRoom{}
+
+	id := uint(c.Get("user_idx").(float64))
+	var err error
+	user, err := userService.ReadUser(id)
+	if err != nil {
+		return response.KnownErrJSON(c, "User doesn't exist!", err)
+	}
+
+	if err := c.Bind(directMsgInfo); err != nil {
+		return response.KnownErrJSON(c, "err.directMsgInfo.bind", err)
+	}
+
+	chatRoom, err = chatRoomService.DirectMessage(directMsgInfo, user.Name)
+	if err != nil {
+		return response.KnownErrJSON(c, "err.directMsgInfo.send", err)
 	}
 
 	return response.SuccessInterface(c, chatRoom)

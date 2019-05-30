@@ -90,6 +90,51 @@ func SendMessage(msgInfo *model.SendMessageInfo, senderName string) (*model.Chat
 	return chatRoom, nil
 }
 
+// DirectMessage
+func DirectMessage(msgInfo *model.DirectMessageInfo, senderName string) (*model.ChatRoom, error) {
+	chatRoom := &model.ChatRoom{}
+	var err error
+	var body string
+
+	if msgInfo.Message.Text != "" {
+		body = msgInfo.Message.Text
+	} else {
+		body = "Image or Contact"
+		if msgInfo.Message.Image != "" {
+			body = "Image"
+		}
+		if msgInfo.Message.Contact != "" {
+			body = "Contact"
+		}
+	}
+	// 20-2
+
+	ids := strings.Split(msgInfo.Pair, "-")
+
+	for _, id := range ids {
+		user := &model.User{}
+		err = db.ORM.First(&user, "id = ?", id).Error
+
+		if err != nil {
+			// continue
+		} else {
+			if user != nil {
+				if senderName == user.Name {
+					continue
+				}
+				if senderName == "" {
+					senderName = "Unnamed"
+				}
+				if user.PushToken != "" {
+					go notification.SendNotification(user.PushToken, senderName, body)
+				}
+			}
+		}
+
+	}
+	return chatRoom, nil
+}
+
 // ReadChatRooms return chatRooms after retreive with params
 func ReadChatRooms(query string, offset int, count int, field string, sort int, userID uint) ([]*model.ChatRoom, int, error) {
 	chatRooms := []*model.ChatRoom{}

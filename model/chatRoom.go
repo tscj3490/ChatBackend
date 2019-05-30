@@ -18,6 +18,12 @@ type SendMessageInfo struct {
 	Message *Msg `json:"message"`
 }
 
+// DirectMessageInfo
+type DirectMessageInfo struct {
+	Pair    string `json:"pair"`
+	Message *Msg   `json:"message"`
+}
+
 // Msg
 type Msg struct {
 	Text      string    `json:"text"`
