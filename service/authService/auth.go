@@ -72,7 +72,7 @@ func SendCode(phone string) (string, error) {
 
 	client := twilio.NewClient(config.Sid, config.Token)
 	fmt.Println("-----", config.Sid, config.Token, config.ServerPhone, phone)
-	message, err := twilio.NewMessage(client, config.ServerPhone, "+"+phone, twilio.Body("Here’s your Greenbay Verification Code : "+verifyCode))
+	message, err := twilio.NewMessage(client, config.ServerPhone, "+"+phone, twilio.Body("Here’s your Sellaboo Verification Code : "+verifyCode))
 
 	if err != nil {
 		fmt.Println(err)
